@@ -1,0 +1,77 @@
+@page
+@model Frontend.Pages.Facturacion.ProcesarModel
+@{
+    ViewData["Title"] = "Procesar facturas";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<p class="texto-ayuda">Pega un arreglo JSON con facturas. Cada factura debe incluir TIEMPO, REFERENCIA, NIT_EMISOR, NIT_RECEPTOR, VALOR, IVA y TOTAL. Los contribuyentes deben estar registrados previamente.</p>
+<form method="post" class="formulario">
+    <div class="campo">
+        <label asp-for="JsonFacturas">Facturas en formato JSON</label>
+        <textarea asp-for="JsonFacturas" spellcheck="false" placeholder="[
+  {
+    &quot;TIEMPO&quot;: &quot;Guatemala, 01/04/2025 10:00 hrs.&quot;,
+    &quot;REFERENCIA&quot;: &quot;FACTURA-001&quot;,
+    &quot;NIT_EMISOR&quot;: &quot;7378106&quot;,
+    &quot;NIT_RECEPTOR&quot;: &quot;8338817&quot;,
+    &quot;VALOR&quot;: 1500.00,
+    &quot;IVA&quot;: 180.00,
+    &quot;TOTAL&quot;: 1680.00
+  }
+]"></textarea>
+    </div>
+    <button class="boton" type="submit">Procesar lote</button>
+</form>
+
+@if (Model.Resultado is not null)
+{
+    var estadisticas = Model.Resultado.Estadisticas;
+    <section class="seccion-resultado" aria-labelledby="resumen-lote">
+        <h2 id="resumen-lote">Resultado del lote</h2>
+        <dl class="resumen-importacion resumen-facturas">
+            <div><dt>Recibidas</dt><dd>@estadisticas.Recibidas</dd></div>
+            <div><dt>Aprobadas</dt><dd>@estadisticas.Aprobadas</dd></div>
+            <div><dt>Rechazadas</dt><dd>@estadisticas.Rechazadas</dd></div>
+            <div><dt>Descartadas por formato</dt><dd>@estadisticas.DescartadasPorFormato</dd></div>
+            <div><dt>Emisores distintos</dt><dd>@estadisticas.EmisoresDistintos</dd></div>
+            <div><dt>Receptores distintos</dt><dd>@estadisticas.ReceptoresDistintos</dd></div>
+        </dl>
+
+        <h3>Errores detectados</h3>
+        @if (estadisticas.Errores.Count == 0)
+        {
+            <p>No se encontraron errores.</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Error</th><th>Facturas</th></tr></thead>
+                <tbody>
+                @foreach (var error in estadisticas.Errores.OrderBy(item => item.Key))
+                {
+                    <tr><td>@error.Key</td><td>@error.Value</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+
+        <h3>Códigos de autorización</h3>
+        @if (Model.Resultado.Resultado.Detalles.Count == 0)
+        {
+            <p>No hubo facturas aprobadas.</p>
+        }
+        else
+        {
+            <table>
+                <thead><tr><th>Referencia</th><th>Código de autorización</th></tr></thead>
+                <tbody>
+                @foreach (var detalle in Model.Resultado.Resultado.Detalles)
+                {
+                    <tr><td>@detalle.Referencia</td><td>@detalle.CodigoAprobacion</td></tr>
+                }
+                </tbody>
+            </table>
+        }
+    </section>
+}

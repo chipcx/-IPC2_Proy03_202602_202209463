@@ -8,20 +8,24 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - RTU</title>
+    <title>@ViewData["Title"] - Proyecto 3</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <div class="contenedor">
         <header class="cabecera">
-            <a class="titulo-sitio" asp-page="/Contribuyentes/Listar">Proyecto 3 · RTU</a>
+            <a class="titulo-sitio" asp-page="/Contribuyentes/Listar">Proyecto 3 · Facturación y RTU</a>
             <nav class="pestanas" aria-label="Operaciones del sistema">
-                <a class="@ClaseActiva("/Contribuyentes/Listar")" asp-page="/Contribuyentes/Listar">Contribuyentes</a>
-                <a class="@ClaseActiva("/Contribuyentes/Obtener")" asp-page="/Contribuyentes/Obtener">Consultar</a>
+                <a class="@ClaseActiva("/Contribuyentes/Listar")" asp-page="/Contribuyentes/Listar">Listar</a>
+                <a class="@ClaseActiva("/Contribuyentes/Obtener")" asp-page="/Contribuyentes/Obtener">Obtener</a>
                 <a class="@ClaseActiva("/Contribuyentes/Crear")" asp-page="/Contribuyentes/Crear">Crear</a>
+                <a class="@ClaseActiva("/Contribuyentes/Reemplazar")" asp-page="/Contribuyentes/Reemplazar">Reemplazar</a>
+                <a class="@ClaseActiva("/Contribuyentes/ActualizarNombre")" asp-page="/Contribuyentes/ActualizarNombre">Actualizar nombre</a>
+                <a class="@ClaseActiva("/Contribuyentes/Eliminar")" asp-page="/Contribuyentes/Eliminar">Eliminar</a>
+                <a class="@ClaseActiva("/Inicializar")" asp-page="/Inicializar">Inicializar</a>
                 <a class="@ClaseActiva("/Regex/ImportarTexto")" asp-page="/Regex/ImportarTexto">Importar RTU</a>
                 <a class="@ClaseActiva("/Regex/ExtraerFecha")" asp-page="/Regex/ExtraerFecha">Extraer fecha</a>
-                <a class="@ClaseActiva("/Inicializar")" asp-page="/Inicializar">Reiniciar</a>
+                <a class="@(paginaActual.StartsWith("/Facturacion/", StringComparison.OrdinalIgnoreCase) ? "activa" : string.Empty)" asp-page="/Facturacion/Procesar">Facturación</a>
             </nav>
         </header>
         <main class="contenido">
@@ -29,5 +33,6 @@
             @RenderBody()
         </main>
     </div>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

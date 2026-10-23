@@ -56,3 +56,35 @@ DELETE {{Backend_HostAddress}}/api/contribuyentes/7378106
 
 ### Reiniciar contribuyentes
 DELETE {{Backend_HostAddress}}/api/contribuyentes/inicializar
+
+### Procesar y autorizar facturas (primero importar contribuyentes válidos)
+POST {{Backend_HostAddress}}/api/Procesar
+Content-Type: application/json
+
+[
+  {
+    "TIEMPO": "Guatemala, 01/04/2025 10:00 hrs.",
+    "REFERENCIA": "FACTURA-001",
+    "NIT_EMISOR": "7378106",
+    "NIT_RECEPTOR": "8338817",
+    "VALOR": 1500.00,
+    "IVA": 180.00,
+    "TOTAL": 1680.00
+  }
+]
+
+### Consultar facturas emitidas por un NIT
+GET {{Backend_HostAddress}}/api/ConsultaDatos?nit=7378106&tipo=emitidas&fechaInicio=01%2F04%2F2025&fechaFin=30%2F04%2F2025
+Accept: application/json
+
+### Consultar resumen de IVA de una fecha
+GET {{Backend_HostAddress}}/api/ResumenIva?fecha=01%2F04%2F2025
+Accept: application/json
+
+### Consultar montos del rango incluyendo IVA
+GET {{Backend_HostAddress}}/api/ResumenRango?fechaInicio=01%2F04%2F2025&fechaFin=30%2F04%2F2025&incluirIva=true
+Accept: application/json
+
+### Obtener datos para ambas gráficas
+GET {{Backend_HostAddress}}/api/Grafica?fecha=01%2F04%2F2025&fechaInicio=01%2F04%2F2025&fechaFin=30%2F04%2F2025&incluirIva=true
+Accept: application/json

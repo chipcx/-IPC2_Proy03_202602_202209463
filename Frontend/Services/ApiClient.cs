@@ -110,6 +110,87 @@ public sealed class ApiClient(HttpClient cliente)
                 cancellationToken),
             cancellationToken);
 
+    public Task<RespuestaApi> ProcesarFacturasAsync(
+        string json,
+        CancellationToken cancellationToken = default)
+    {
+        var contenido = new StringContent(json ?? string.Empty, Encoding.UTF8, "application/json");
+        return EjecutarAsync(
+            () => cliente.PostAsync("api/Procesar", contenido, cancellationToken),
+            cancellationToken);
+    }
+
+    public Task<RespuestaApi> ConsultarFacturasAsync(
+        string nit,
+        string tipo,
+        string fechaInicio,
+        string fechaFin,
+        CancellationToken cancellationToken = default) =>
+        ObtenerRutaAsync(
+            "api/ConsultaDatos",
+            new Dictionary<string, string>
+            {
+                ["nit"] = Normalizar(nit),
+                ["tipo"] = tipo,
+                ["fechaInicio"] = fechaInicio,
+                ["fechaFin"] = fechaFin
+            },
+            cancellationToken);
+
+    public Task<RespuestaApi> ResumirIvaAsync(
+        string fecha,
+        CancellationToken cancellationToken = default) =>
+        ObtenerRutaAsync(
+            "api/ResumenIva",
+            new Dictionary<string, string> { ["fecha"] = fecha },
+            cancellationToken);
+
+    public Task<RespuestaApi> ResumirRangoAsync(
+        string fechaInicio,
+        string fechaFin,
+        bool incluirIva,
+        CancellationToken cancellationToken = default) =>
+        ObtenerRutaAsync(
+            "api/ResumenRango",
+            new Dictionary<string, string>
+            {
+                ["fechaInicio"] = fechaInicio,
+                ["fechaFin"] = fechaFin,
+                ["incluirIva"] = incluirIva.ToString().ToLowerInvariant()
+            },
+            cancellationToken);
+
+    public Task<RespuestaApi> ObtenerGraficasAsync(
+        string fecha,
+        string fechaInicio,
+        string fechaFin,
+        bool incluirIva,
+        CancellationToken cancellationToken = default) =>
+        ObtenerRutaAsync(
+            "api/Grafica",
+            new Dictionary<string, string>
+            {
+                ["fecha"] = fecha,
+                ["fechaInicio"] = fechaInicio,
+                ["fechaFin"] = fechaFin,
+                ["incluirIva"] = incluirIva.ToString().ToLowerInvariant()
+            },
+            cancellationToken);
+
+    private Task<RespuestaApi> ObtenerRutaAsync(
+        string ruta,
+        IReadOnlyDictionary<string, string> parametros,
+        CancellationToken cancellationToken)
+    {
+        var query = string.Join(
+            "&",
+            parametros.Select(parametro =>
+                $"{Uri.EscapeDataString(parametro.Key)}={Uri.EscapeDataString(parametro.Value)}"));
+        return EjecutarAsync(
+            () => cliente.GetAsync($"{ruta}?{query}", cancellationToken),
+            cancellationToken);
+    }
+
     private async Task<RespuestaApi> EnviarPatchAsync(
         string nit,
         string nombre,

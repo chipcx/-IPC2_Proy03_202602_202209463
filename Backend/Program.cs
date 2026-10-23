@@ -3,6 +3,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddSingleton<ContribuyenteService>();
+builder.Services.AddSingleton<FacturacionService>();
 builder.Services.AddCors(options => options.AddPolicy("PoliticaCors", policy =>
     policy.AllowAnyOrigin()
         .AllowAnyHeader()

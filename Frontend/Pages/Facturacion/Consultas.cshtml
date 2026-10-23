@@ -1,0 +1,174 @@
+@page
+@model Frontend.Pages.Facturacion.ConsultasModel
+@{
+    ViewData["Title"] = "Consultas y reportes";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<form method="post" class="formulario formulario-consulta">
+    <div class="campo">
+        <label asp-for="Operacion">Consulta</label>
+        <select asp-for="Operacion" id="operacion">
+            <option value="facturas">Facturas por NIT y rango</option>
+            <option value="iva">Resumen de IVA por fecha</option>
+            <option value="rango">Resumen de montos por rango</option>
+            <option value="graficas">Datos para gráficas</option>
+        </select>
+    </div>
+    <div class="campo" data-operacion="facturas">
+        <label asp-for="Nit">NIT</label>
+        <input asp-for="Nit" autocomplete="off" />
+    </div>
+    <div class="campo" data-operacion="facturas">
+        <label asp-for="Tipo">Tipo de facturas</label>
+        <select asp-for="Tipo">
+            <option value="emitidas">Emitidas</option>
+            <option value="recibidas">Recibidas</option>
+        </select>
+    </div>
+    <div class="campo" data-operacion="iva graficas">
+        <label asp-for="Fecha">Fecha para resumen de IVA</label>
+        <input asp-for="Fecha" type="date" />
+    </div>
+    <div class="campo" data-operacion="facturas rango graficas">
+        <label asp-for="FechaInicio">Fecha inicial</label>
+        <input asp-for="FechaInicio" type="date" />
+    </div>
+    <div class="campo" data-operacion="facturas rango graficas">
+        <label asp-for="FechaFin">Fecha final</label>
+        <input asp-for="FechaFin" type="date" />
+    </div>
+    <div class="campo campo-checkbox" data-operacion="rango graficas">
+        <label><input asp-for="IncluirIva" /> Incluir IVA en los montos</label>
+    </div>
+    <button class="boton" type="submit">Consultar</button>
+</form>
+
+@if (Model.Consulta is not null)
+{
+    <section class="seccion-resultado">
+        <h2>Facturas @Model.Consulta.Tipo para @Model.Consulta.Nit</h2>
+        <p class="texto-ayuda">Periodo: @Model.Consulta.FechaInicio al @Model.Consulta.FechaFin</p>
+        <dl class="resumen-importacion resumen-facturas">
+            <div><dt>Cantidad de facturas</dt><dd>@Model.Consulta.CantidadTotalFacturas</dd></div>
+            <div><dt>Monto total</dt><dd>@Model.Consulta.MontoTotalFacturado.ToString("C2")</dd></div>
+        </dl>
+        <table>
+            <thead><tr><th>Fecha</th><th>Facturas autorizadas</th><th>Monto facturado</th></tr></thead>
+            <tbody>
+            @if (Model.Consulta.ResumenPorFecha.Count == 0)
+            {
+                <tr><td colspan="3">No hay facturas autorizadas en el periodo.</td></tr>
+            }
+            @foreach (var detalle in Model.Consulta.ResumenPorFecha)
+            {
+                <tr><td>@detalle.Fecha</td><td>@detalle.CantidadFacturasAutorizadas</td><td>@detalle.MontoTotalFacturado.ToString("C2")</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}
+
+@if (Model.ResumenIva is not null)
+{
+    <section class="seccion-resultado">
+        <h2>Resumen de IVA · @Model.ResumenIva.Fecha</h2>
+        <table>
+            <thead><tr><th>NIT</th><th>Contribuyente</th><th>IVA emitido</th><th>IVA recibido</th></tr></thead>
+            <tbody>
+            @if (Model.ResumenIva.ResumenPorNit.Count == 0)
+            {
+                <tr><td colspan="4">No hay movimientos de IVA para esa fecha.</td></tr>
+            }
+            @foreach (var detalle in Model.ResumenIva.ResumenPorNit)
+            {
+                <tr><td>@detalle.Nit</td><td>@detalle.Nombre</td><td>@detalle.IvaEmitido.ToString("C2")</td><td>@detalle.IvaRecibido.ToString("C2")</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}
+
+@if (Model.ResumenRango is not null)
+{
+    <section class="seccion-resultado">
+        <h2>Resumen de montos · @Model.ResumenRango.FechaInicio al @Model.ResumenRango.FechaFin</h2>
+        <p>Monto total del rango: <strong>@Model.ResumenRango.MontoTotalRango.ToString("C2")</strong> (@(Model.ResumenRango.IncluirIva ? "incluye IVA" : "sin IVA"))</p>
+        <table>
+            <thead><tr><th>Fecha</th><th>Monto autorizado</th></tr></thead>
+            <tbody>
+            @if (Model.ResumenRango.ResumenPorFecha.Count == 0)
+            {
+                <tr><td colspan="2">No hay facturas autorizadas en el periodo.</td></tr>
+            }
+            @foreach (var detalle in Model.ResumenRango.ResumenPorFecha)
+            {
+                <tr><td>@detalle.Fecha</td><td>@detalle.MontoAutorizado.ToString("C2")</td></tr>
+            }
+            </tbody>
+        </table>
+    </section>
+}
+
+@if (Model.Graficas is not null)
+{
+    var ivaMaximo = Model.Graficas.GraficaIva.IvaEmitido
+        .Concat(Model.Graficas.GraficaIva.IvaRecibido)
+        .DefaultIfEmpty(0)
+        .Max();
+    var montoMaximo = Model.Graficas.GraficaRango.Valores.DefaultIfEmpty(0).Max();
+    <section class="seccion-resultado">
+        <h2>Gráficas de facturación</h2>
+        <h3>IVA emitido y recibido · @Model.Graficas.GraficaIva.Fecha</h3>
+        @if (Model.Graficas.GraficaIva.Labels.Count == 0)
+        {
+            <p>No hay movimientos de IVA para graficar.</p>
+        }
+        @for (var i = 0; i < Model.Graficas.GraficaIva.Labels.Count; i++)
+        {
+            var emitido = Model.Graficas.GraficaIva.IvaEmitido.ElementAtOrDefault(i);
+            var recibido = Model.Graficas.GraficaIva.IvaRecibido.ElementAtOrDefault(i);
+            <div class="fila-grafica">
+                <strong>@Model.Graficas.GraficaIva.Labels[i]</strong>
+                <span>Emitido @emitido.ToString("C2")</span>
+                <span class="barra-grafica"><span class="barra-emitido" style="width:@(Model.Porcentaje(emitido, ivaMaximo))%"></span></span>
+                <span>Recibido @recibido.ToString("C2")</span>
+                <span class="barra-grafica"><span class="barra-recibido" style="width:@(Model.Porcentaje(recibido, ivaMaximo))%"></span></span>
+            </div>
+        }
+
+        <h3>Montos autorizados por fecha · @Model.Graficas.GraficaRango.FechaInicio al @Model.Graficas.GraficaRango.FechaFin</h3>
+        @if (Model.Graficas.GraficaRango.Labels.Count == 0)
+        {
+            <p>No hay montos para graficar.</p>
+        }
+        @for (var i = 0; i < Model.Graficas.GraficaRango.Labels.Count; i++)
+        {
+            var valor = Model.Graficas.GraficaRango.Valores.ElementAtOrDefault(i);
+            <div class="fila-grafica fila-grafica-rango">
+                <strong>@Model.Graficas.GraficaRango.Labels[i]</strong>
+                <span>@valor.ToString("C2")</span>
+                <span class="barra-grafica"><span class="barra-monto" style="width:@(Model.Porcentaje(valor, montoMaximo))%"></span></span>
+            </div>
+        }
+    </section>
+}
+
+@section Scripts {
+    <script>
+        (() => {
+            const selector = document.getElementById("operacion");
+            const campos = document.querySelectorAll("[data-operacion]");
+            const actualizar = () => {
+                const operacion = selector.value;
+                campos.forEach(campo => {
+                    const visible = campo.dataset.operacion.split(" ").includes(operacion);
+                    campo.hidden = !visible;
+                    campo.querySelectorAll("input, select").forEach(control => control.disabled = !visible);
+                });
+            };
+            selector.addEventListener("change", actualizar);
+            actualizar();
+        })();
+    </script>
+}

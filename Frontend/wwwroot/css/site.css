@@ -16,14 +16,14 @@ html { font-size: 16px; min-height: 100%; }
 body { margin: 0; background: var(--blanco); color: var(--texto); font-family: system-ui, sans-serif; }
 a { color: var(--acento); text-decoration: none; }
 a:hover { text-decoration: underline; }
-button, input, textarea { font: inherit; }
+button, input, textarea, select { font: inherit; }
 
 .contenedor { width: min(1000px, calc(100% - 32px)); margin: 0 auto; }
 .cabecera { padding: 28px 0 0; border-bottom: 1px solid var(--borde); }
 .titulo-sitio { display: block; margin-bottom: 22px; color: var(--texto); font-size: 24px; font-weight: 650; }
 .titulo-sitio:hover { text-decoration: none; }
-.pestanas { display: flex; flex-wrap: wrap; gap: 0 20px; }
-.pestanas a { padding: 11px 0 10px; border-bottom: 3px solid transparent; color: var(--texto-suave); font-size: 14px; }
+.pestanas { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.pestanas a { padding: 8px 0 7px; border-bottom: 2px solid transparent; color: var(--texto-suave); font-size: 12px; white-space: nowrap; }
 .pestanas a:hover { color: var(--acento); }
 .pestanas a.activa { border-bottom-color: var(--acento); color: var(--acento); font-weight: 650; }
 .contenido { padding: 44px 0 72px; }
@@ -31,9 +31,9 @@ h1 { margin: 0 0 20px; font-size: 32px; font-weight: 650; }
 .formulario { display: grid; gap: 18px; max-width: 720px; }
 .campo { display: grid; gap: 7px; }
 .campo label { font-size: 14px; font-weight: 600; }
-.campo input, .campo textarea { width: 100%; padding: 10px 11px; border: 1px solid var(--borde); border-radius: 2px; background: var(--blanco); color: var(--texto); }
+.campo input, .campo textarea, .campo select { width: 100%; padding: 10px 11px; border: 1px solid var(--borde); border-radius: 2px; background: var(--blanco); color: var(--texto); }
 .campo textarea { min-height: 190px; resize: vertical; }
-.campo input:focus, .campo textarea:focus { outline: 2px solid #b8cad8; border-color: var(--acento); }
+.campo input:focus, .campo textarea:focus, .campo select:focus { outline: 2px solid #b8cad8; border-color: var(--acento); }
 .boton { width: fit-content; padding: 9px 15px; border: 1px solid var(--acento); border-radius: 2px; background: var(--acento); color: var(--blanco); cursor: pointer; font-weight: 650; }
 .boton:hover { background: #173650; }
 .boton-peligro { border-color: var(--rojo-alerta); background: var(--rojo-alerta); }
@@ -53,13 +53,30 @@ tbody tr:nth-child(even) { background: #fbfcfc; }
 .resumen-importacion dd { margin: 5px 0 0; font-weight: 650; }
 .aviso { max-width: 720px; padding: 14px; border-left: 3px solid var(--acento); background: var(--fondo-suave); font-size: 15px; }
 .texto-ayuda { max-width: 720px; color: var(--texto-suave); line-height: 1.6; }
+.campo[hidden] { display: none; }
+.campo-checkbox label { display: flex; align-items: center; gap: 9px; }
+.campo-checkbox input { width: auto; }
+.seccion-resultado { margin-top: 36px; }
+.seccion-resultado h2 { margin-bottom: 10px; font-size: 24px; }
+.seccion-resultado h3 { margin-top: 28px; font-size: 18px; }
+.resumen-facturas { max-width: none; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); margin-bottom: 28px; }
+.fila-grafica { display: grid; grid-template-columns: minmax(90px, 150px) minmax(125px, 180px) minmax(100px, 1fr); align-items: center; gap: 8px 14px; margin: 14px 0; font-size: 14px; }
+.fila-grafica > strong { grid-row: span 2; overflow-wrap: anywhere; }
+.barra-grafica { display: block; height: 13px; overflow: hidden; border-radius: 8px; background: var(--fondo-suave); }
+.barra-grafica > span { display: block; height: 100%; border-radius: inherit; }
+.barra-emitido { background: #1e4668; }
+.barra-recibido { background: #58a17b; }
+.fila-grafica-rango { grid-template-columns: minmax(100px, 150px) minmax(110px, 180px) minmax(100px, 1fr); }
+.barra-monto { background: #bd8332; }
 
 @media (max-width: 620px) {
     .contenedor { width: min(100% - 24px, 1000px); }
     .contenido { padding-top: 32px; }
     h1 { font-size: 27px; }
-    .pestanas { gap: 0 14px; }
-    .pestanas a { font-size: 13px; }
+    .pestanas { gap: 0 12px; }
     .resumen-importacion { grid-template-columns: 1fr; }
     .acciones { display: grid; gap: 7px; }
+    .fila-grafica, .fila-grafica-rango { grid-template-columns: minmax(80px, 1fr) minmax(90px, 1fr); }
+    .fila-grafica > strong { grid-row: auto; }
+    .fila-grafica .barra-grafica { grid-column: 1 / -1; }
 }

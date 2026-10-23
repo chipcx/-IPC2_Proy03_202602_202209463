@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+/// <summary>Factura recibida en un lote de autorización.</summary>
 public sealed class Factura
 {
     [Required]

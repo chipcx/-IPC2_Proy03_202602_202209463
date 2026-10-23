@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 public sealed class ContribuyentesController : ControllerBase
 {
     private readonly ContribuyenteService _servicio;
+    private readonly FacturacionService _facturacion;
 
-    public ContribuyentesController(ContribuyenteService servicio)
+    public ContribuyentesController(ContribuyenteService servicio, FacturacionService facturacion)
     {
         _servicio = servicio;
+        _facturacion = facturacion;
     }
 
     [HttpGet]
@@ -66,6 +68,7 @@ public sealed class ContribuyentesController : ControllerBase
     public IActionResult Inicializar()
     {
         _servicio.Inicializar();
+        _facturacion.Inicializar();
         return NoContent();
     }
 
