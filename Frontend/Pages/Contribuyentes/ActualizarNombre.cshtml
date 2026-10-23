@@ -1,0 +1,12 @@
+@page
+@model Frontend.Pages.Contribuyentes.ActualizarNombreModel
+@{
+    ViewData["Title"] = "Actualizar nombre";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<form method="post" class="formulario">
+    <div class="campo"><label asp-for="Nit">NIT</label><input asp-for="Nit" readonly /></div>
+    <div class="campo"><label asp-for="Nombre">Nombre nuevo</label><input asp-for="Nombre" /></div>
+    <button class="boton" type="submit">Actualizar nombre</button>
+</form>

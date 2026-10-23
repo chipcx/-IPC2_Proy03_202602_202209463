@@ -1,0 +1,19 @@
+@page
+@model Frontend.Pages.Regex.ExtraerFechaModel
+@{
+    ViewData["Title"] = "Extraer fecha";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<p class="texto-ayuda">Prueba el endpoint que localiza una fecha en formato dd/MM/yyyy dentro de un texto.</p>
+<form method="post" class="formulario">
+    <div class="campo">
+        <label asp-for="Texto">Texto</label>
+        <input asp-for="Texto" placeholder="Guatemala, 15/01/2025 15:25 hrs." />
+    </div>
+    <button class="boton" type="submit">Extraer fecha</button>
+</form>
+@if (!string.IsNullOrWhiteSpace(Model.Fecha))
+{
+    <p class="resultado">Fecha extraída: <strong>@Model.Fecha</strong></p>
+}

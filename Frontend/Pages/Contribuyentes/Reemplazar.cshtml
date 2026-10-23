@@ -1,0 +1,12 @@
+@page
+@model Frontend.Pages.Contribuyentes.ReemplazarModel
+@{
+    ViewData["Title"] = "Reemplazar contribuyente";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<form method="post" class="formulario">
+    <div class="campo"><label asp-for="Nit">NIT</label><input asp-for="Nit" readonly /></div>
+    <div class="campo"><label asp-for="Nombre">Nombre</label><input asp-for="Nombre" /></div>
+    <button class="boton" type="submit">Reemplazar contribuyente</button>
+</form>

@@ -1,0 +1,32 @@
+@page
+@model Frontend.Pages.Contribuyentes.ListarModel
+@{
+    ViewData["Title"] = "Contribuyentes registrados";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<p class="acciones"><a asp-page="/Contribuyentes/Crear">Crear contribuyente</a><a asp-page="/Regex/ImportarTexto">Importar RTU</a></p>
+<table>
+    <thead>
+        <tr><th>NIT</th><th>Nombre</th><th>Acciones</th></tr>
+    </thead>
+    <tbody>
+    @if (Model.Contribuyentes.Count == 0)
+    {
+        <tr><td colspan="3">No hay contribuyentes registrados.</td></tr>
+    }
+    @foreach (var contribuyente in Model.Contribuyentes)
+    {
+        <tr>
+            <td>@contribuyente.Nit</td>
+            <td>@contribuyente.Nombre</td>
+            <td class="acciones">
+                <a asp-page="/Contribuyentes/Obtener" asp-route-nit="@contribuyente.Nit">Consultar</a>
+                <a asp-page="/Contribuyentes/Reemplazar" asp-route-nit="@contribuyente.Nit">Editar</a>
+                <a asp-page="/Contribuyentes/ActualizarNombre" asp-route-nit="@contribuyente.Nit">Cambiar nombre</a>
+                <a asp-page="/Contribuyentes/Eliminar" asp-route-nit="@contribuyente.Nit">Eliminar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

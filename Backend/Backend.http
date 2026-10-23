@@ -1,0 +1,58 @@
+@Backend_HostAddress = http://localhost:5033
+
+### Verificar backend
+GET {{Backend_HostAddress}}/api/test
+Accept: application/json
+
+### Listar contribuyentes
+GET {{Backend_HostAddress}}/api/contribuyentes
+Accept: application/json
+
+### Crear contribuyente
+POST {{Backend_HostAddress}}/api/contribuyentes
+Content-Type: application/json
+
+{
+  "NIT": "7378106",
+  "nombre": "Empresa ABC, S.A."
+}
+
+### Obtener contribuyente
+GET {{Backend_HostAddress}}/api/contribuyentes/7378106
+Accept: application/json
+
+### Extraer fecha
+GET {{Backend_HostAddress}}/api/contribuyentes/fecha?texto=Guatemala%2C%2001%2F04%2F2025%2010%3A00%20hrs.
+Accept: application/json
+
+### Reemplazar contribuyente
+PUT {{Backend_HostAddress}}/api/contribuyentes/7378106
+Content-Type: application/json
+
+{
+  "NIT": "7378106",
+  "nombre": "Empresa ABC actualizada"
+}
+
+### Actualizar nombre
+PATCH {{Backend_HostAddress}}/api/contribuyentes/7378106
+Content-Type: application/json
+
+{
+  "nombre": "Empresa ABC, S.A."
+}
+
+### Importar RTU desde contenido JSON como texto
+POST {{Backend_HostAddress}}/api/contribuyentes/importar-texto
+Content-Type: text/plain
+
+[
+  {"NIT": "7378106", "nombre": "Empresa ABC, S.A."},
+  {"NIT": "8338817", "nombre": "Comercial XYZ, S.A."}
+]
+
+### Eliminar contribuyente
+DELETE {{Backend_HostAddress}}/api/contribuyentes/7378106
+
+### Reiniciar contribuyentes
+DELETE {{Backend_HostAddress}}/api/contribuyentes/inicializar

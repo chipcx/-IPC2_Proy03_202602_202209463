@@ -1,0 +1,19 @@
+@page
+@model Frontend.Pages.Contribuyentes.ObtenerModel
+@{
+    ViewData["Title"] = "Consultar contribuyente";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<form method="post" class="formulario">
+    <div class="campo"><label asp-for="Nit">NIT</label><input asp-for="Nit" autocomplete="off" /></div>
+    <button class="boton" type="submit">Consultar</button>
+</form>
+
+@if (Model.Contribuyente is not null)
+{
+    <table>
+        <thead><tr><th>NIT</th><th>Nombre</th></tr></thead>
+        <tbody><tr><td>@Model.Contribuyente.Nit</td><td>@Model.Contribuyente.Nombre</td></tr></tbody>
+    </table>
+}

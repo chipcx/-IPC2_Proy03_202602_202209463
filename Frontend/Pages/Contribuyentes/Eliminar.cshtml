@@ -1,0 +1,12 @@
+@page
+@model Frontend.Pages.Contribuyentes.EliminarModel
+@{
+    ViewData["Title"] = "Eliminar contribuyente";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<p class="aviso">La eliminación no se puede deshacer. Confirma el NIT antes de continuar.</p>
+<form method="post" class="formulario">
+    <div class="campo"><label asp-for="Nit">NIT</label><input asp-for="Nit" autocomplete="off" /></div>
+    <button class="boton boton-peligro" type="submit">Eliminar contribuyente</button>
+</form>

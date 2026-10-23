@@ -1,0 +1,33 @@
+﻿@{
+    var paginaActual = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
+    string ClaseActiva(string pagina) =>
+        paginaActual.Equals(pagina, StringComparison.OrdinalIgnoreCase) ? "activa" : string.Empty;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - RTU</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="contenedor">
+        <header class="cabecera">
+            <a class="titulo-sitio" asp-page="/Contribuyentes/Listar">Proyecto 3 · RTU</a>
+            <nav class="pestanas" aria-label="Operaciones del sistema">
+                <a class="@ClaseActiva("/Contribuyentes/Listar")" asp-page="/Contribuyentes/Listar">Contribuyentes</a>
+                <a class="@ClaseActiva("/Contribuyentes/Obtener")" asp-page="/Contribuyentes/Obtener">Consultar</a>
+                <a class="@ClaseActiva("/Contribuyentes/Crear")" asp-page="/Contribuyentes/Crear">Crear</a>
+                <a class="@ClaseActiva("/Regex/ImportarTexto")" asp-page="/Regex/ImportarTexto">Importar RTU</a>
+                <a class="@ClaseActiva("/Regex/ExtraerFecha")" asp-page="/Regex/ExtraerFecha">Extraer fecha</a>
+                <a class="@ClaseActiva("/Inicializar")" asp-page="/Inicializar">Reiniciar</a>
+            </nav>
+        </header>
+        <main class="contenido">
+            <h1>@ViewData["Title"]</h1>
+            @RenderBody()
+        </main>
+    </div>
+</body>
+</html>

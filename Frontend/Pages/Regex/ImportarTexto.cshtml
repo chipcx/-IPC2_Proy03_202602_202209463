@@ -1,0 +1,23 @@
+@page
+@model Frontend.Pages.Regex.ImportarTextoModel
+@{
+    ViewData["Title"] = "Importar RTU";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<p class="texto-ayuda">Pega un arreglo JSON RTU o registros con formato <code>NIT: 7378106 Nombre: Empresa ABC, S.A.</code>. Los contribuyentes existentes se actualizan por NIT.</p>
+<form method="post" class="formulario">
+    <div class="campo">
+        <label asp-for="Texto">Contenido JSON o texto</label>
+        <textarea asp-for="Texto" placeholder="[{&quot;NIT&quot;:&quot;7378106&quot;,&quot;nombre&quot;:&quot;Empresa ABC, S.A.&quot;}]&#10;&#10;NIT: 8338817 Nombre: Comercial XYZ, S.A."></textarea>
+    </div>
+    <button class="boton" type="submit">Importar contribuyentes</button>
+</form>
+@if (Model.Resultado is not null)
+{
+    <dl class="resumen-importacion">
+        <div><dt>Contribuyentes nuevos</dt><dd>@Model.Resultado.ContribuyentesNuevos</dd></div>
+        <div><dt>Contribuyentes actualizados</dt><dd>@Model.Resultado.ContribuyentesActualizados</dd></div>
+        <div><dt>NIT inválidos</dt><dd>@Model.Resultado.NitsInvalidos</dd></div>
+    </dl>
+}

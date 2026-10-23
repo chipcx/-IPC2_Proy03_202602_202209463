@@ -1,0 +1,12 @@
+@page
+@model Frontend.Pages.Contribuyentes.CrearModel
+@{
+    ViewData["Title"] = "Crear contribuyente";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<form method="post" class="formulario">
+    <div class="campo"><label asp-for="Nit">NIT</label><input asp-for="Nit" autocomplete="off" /></div>
+    <div class="campo"><label asp-for="Nombre">Nombre</label><input asp-for="Nombre" /></div>
+    <button class="boton" type="submit">Crear contribuyente</button>
+</form>
