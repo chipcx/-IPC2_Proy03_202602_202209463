@@ -5,15 +5,11 @@
 }
 
 <partial name="_Alerta" model="Model.Respuesta" />
-<p class="texto-ayuda">Selecciona un archivo JSON RTU de tu computadora o pega aquí el contenido. Si eliges un archivo, se importará ese archivo y se ignorará el texto pegado. Los contribuyentes existentes se actualizan por NIT.</p>
+<p class="texto-ayuda">Selecciona un archivo JSON RTU de tu computadora. Los contribuyentes existentes se actualizan por NIT.</p>
 <form method="post" enctype="multipart/form-data" class="formulario">
     <div class="campo">
         <label asp-for="Archivo">Archivo JSON de RTU</label>
         <input asp-for="Archivo" type="file" accept=".json,application/json" />
-    </div>
-    <div class="campo">
-        <label asp-for="Texto">O pega contenido JSON o texto</label>
-        <textarea asp-for="Texto" placeholder="[{&quot;NIT&quot;:&quot;7378106&quot;,&quot;nombre&quot;:&quot;Empresa ABC, S.A.&quot;}]&#10;&#10;NIT: 8338817 Nombre: Comercial XYZ, S.A."></textarea>
     </div>
     <button class="boton" type="submit">Importar contribuyentes</button>
 </form>

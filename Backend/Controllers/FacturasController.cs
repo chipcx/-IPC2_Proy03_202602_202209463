@@ -29,6 +29,12 @@ public sealed class FacturasController : ControllerBase
         }
     }
 
+    /// <summary>Lista las facturas procesadas, aprobadas y rechazadas, conservadas en el sistema.</summary>
+    [HttpGet("facturas")]
+    [ProducesResponseType(typeof(IReadOnlyList<FacturaRegistradaResponse>), StatusCodes.Status200OK)]
+    public IActionResult ListarFacturasProcesadas() =>
+        Ok(_servicio.ListarFacturasProcesadas());
+
     /// <summary>Consulta facturas autorizadas emitidas o recibidas por un NIT en un rango.</summary>
     [HttpGet("ConsultaDatos")]
     [ProducesResponseType(typeof(ConsultaFacturasResponse), StatusCodes.Status200OK)]

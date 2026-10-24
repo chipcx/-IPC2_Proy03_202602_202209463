@@ -73,6 +73,10 @@ Content-Type: application/json
   }
 ]
 
+### Listar todas las facturas procesadas (aprobadas y rechazadas)
+GET {{Backend_HostAddress}}/api/facturas
+Accept: application/json
+
 ### Consultar facturas emitidas por un NIT
 GET {{Backend_HostAddress}}/api/ConsultaDatos?nit=7378106&tipo=emitidas&fechaInicio=01%2F04%2F2025&fechaFin=30%2F04%2F2025
 Accept: application/json

@@ -8,28 +8,37 @@ namespace Frontend.Pages.Facturacion;
 
 public sealed class ProcesarModel(ApiClient apiClient) : PageModel
 {
-    private static readonly JsonSerializerOptions OpcionesJson = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
     [BindProperty]
-    public string JsonFacturas { get; set; } = string.Empty;
+    public IFormFile? Archivo { get; set; }
 
     public RespuestaApi Respuesta { get; private set; } = new();
-    public ResultadoAutorizaciones? Resultado { get; private set; }
 
     public async Task OnPostAsync(CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(JsonFacturas))
+        if (Archivo is null)
         {
-            Respuesta = new RespuestaApi { Mensaje = "Pega un arreglo JSON de facturas para procesar." };
+            Respuesta = new RespuestaApi { Mensaje = "Selecciona un archivo JSON de facturas para procesar." };
             return;
         }
 
+        if (!string.Equals(Path.GetExtension(Archivo.FileName), ".json", StringComparison.OrdinalIgnoreCase))
+        {
+            Respuesta = new RespuestaApi { Mensaje = "Selecciona un archivo de facturas con extensión .json." };
+            return;
+        }
+
+        if (Archivo.Length == 0)
+        {
+            Respuesta = new RespuestaApi { Mensaje = "El archivo seleccionado está vacío." };
+            return;
+        }
+
+        using var lector = new StreamReader(Archivo.OpenReadStream(), detectEncodingFromByteOrderMarks: true);
+        var contenido = await lector.ReadToEndAsync(cancellationToken);
+
         try
         {
-            using var documento = JsonDocument.Parse(JsonFacturas);
+            using var documento = JsonDocument.Parse(contenido);
             if (documento.RootElement.ValueKind != JsonValueKind.Array)
             {
                 Respuesta = new RespuestaApi { Mensaje = "El contenido debe ser un arreglo JSON de facturas." };
@@ -42,25 +51,10 @@ public sealed class ProcesarModel(ApiClient apiClient) : PageModel
             return;
         }
 
-        Respuesta = await apiClient.ProcesarFacturasAsync(JsonFacturas, cancellationToken);
-        if (!Respuesta.Exito)
+        Respuesta = await apiClient.ProcesarFacturasAsync(contenido, cancellationToken);
+        if (Respuesta.Exito)
         {
-            return;
-        }
-
-        try
-        {
-            Resultado = JsonSerializer.Deserialize<ResultadoAutorizaciones>(Respuesta.Cuerpo, OpcionesJson);
-            if (Resultado is null)
-            {
-                Respuesta.Exito = false;
-                Respuesta.Mensaje = "La API no devolvió un resultado de autorización válido.";
-            }
-        }
-        catch (JsonException)
-        {
-            Respuesta.Exito = false;
-            Respuesta.Mensaje = "La API devolvió un resultado de autorización no válido.";
+            Respuesta.Mensaje = "Archivo procesado. Las facturas y su resultado quedaron guardados; consúltalos en Facturas procesadas.";
         }
     }
 }

@@ -9,13 +9,16 @@ namespace Frontend.Pages.Facturacion;
 
 public sealed class ConsultasModel(ApiClient apiClient) : PageModel
 {
+    private const string FormatoFechaRegistro = "dd/MM/yyyy HH:mm";
     private static readonly JsonSerializerOptions OpcionesJson = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
+    public List<KeyValuePair<string, string>> FechasConFacturasAutorizadas { get; private set; } = [];
+
     [BindProperty] public string Operacion { get; set; } = "facturas";
-    [BindProperty] public string Nit { get; set; } = string.Empty;
+    [BindProperty] public string? Nit { get; set; } = string.Empty;
     [BindProperty] public string Tipo { get; set; } = "emitidas";
     [BindProperty] public string Fecha { get; set; } = DateTime.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
     [BindProperty] public string FechaInicio { get; set; } = DateTime.Today.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -28,12 +31,25 @@ public sealed class ConsultasModel(ApiClient apiClient) : PageModel
     public ResumenRangoResponse? ResumenRango { get; private set; }
     public ResultadoGraficasResponse? Graficas { get; private set; }
 
+    public async Task OnGetAsync(CancellationToken cancellationToken)
+    {
+        await CargarFechasDisponiblesAsync(cancellationToken);
+        if (FechasConFacturasAutorizadas.Count == 0)
+        {
+            return;
+        }
+
+        Fecha = FechasConFacturasAutorizadas[0].Key;
+        FechaInicio = FechasConFacturasAutorizadas[0].Key;
+        FechaFin = FechasConFacturasAutorizadas[^1].Key;
+    }
+
     public async Task OnPostAsync(CancellationToken cancellationToken)
     {
         Respuesta = Operacion switch
         {
             "facturas" => await apiClient.ConsultarFacturasAsync(
-                Nit, Tipo, FechaInicio, FechaFin, cancellationToken),
+                Nit ?? string.Empty, Tipo, FechaInicio, FechaFin, cancellationToken),
             "iva" => await apiClient.ResumirIvaAsync(Fecha, cancellationToken),
             "rango" => await apiClient.ResumirRangoAsync(
                 FechaInicio, FechaFin, IncluirIva, cancellationToken),
@@ -42,6 +58,7 @@ public sealed class ConsultasModel(ApiClient apiClient) : PageModel
             _ => new RespuestaApi { Mensaje = "Selecciona un tipo de consulta válido." }
         };
 
+        await CargarFechasDisponiblesAsync(cancellationToken);
         if (!Respuesta.Exito)
         {
             return;
@@ -83,4 +100,34 @@ public sealed class ConsultasModel(ApiClient apiClient) : PageModel
 
     private T? Deserializar<T>() =>
         JsonSerializer.Deserialize<T>(Respuesta.Cuerpo, OpcionesJson);
+
+    private async Task CargarFechasDisponiblesAsync(CancellationToken cancellationToken)
+    {
+        var (respuesta, facturas) = await apiClient.ListarFacturasProcesadasAsync(cancellationToken);
+        if (!respuesta.Exito)
+        {
+            FechasConFacturasAutorizadas = [];
+            return;
+        }
+
+        FechasConFacturasAutorizadas = facturas
+            .Where(factura => factura.Aprobada)
+            .Select(factura =>
+                DateTime.TryParseExact(
+                    factura.Fecha,
+                    FormatoFechaRegistro,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var fecha)
+                    ? fecha.Date
+                    : (DateTime?)null)
+            .Where(fecha => fecha.HasValue)
+            .Select(fecha => fecha!.Value)
+            .Distinct()
+            .Order()
+            .Select(fecha => new KeyValuePair<string, string>(
+                fecha.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                fecha.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)))
+            .ToList();
+    }
 }

@@ -35,6 +35,48 @@ public sealed class DetalleAprobacion
     public long CodigoAprobacion { get; init; }
 }
 
+public sealed class FacturaRegistradaResponse
+{
+    [JsonPropertyName("fecha")]
+    public string Fecha { get; init; } = string.Empty;
+
+    [JsonPropertyName("factura")]
+    public FacturaRegistrada Factura { get; init; } = new();
+
+    [JsonPropertyName("aprobada")]
+    public bool Aprobada { get; init; }
+
+    [JsonPropertyName("codigoAprobacion")]
+    public long? CodigoAprobacion { get; init; }
+
+    [JsonPropertyName("errores")]
+    public List<string> Errores { get; init; } = [];
+}
+
+public sealed class FacturaRegistrada
+{
+    [JsonPropertyName("TIEMPO")]
+    public string Tiempo { get; init; } = string.Empty;
+
+    [JsonPropertyName("REFERENCIA")]
+    public string Referencia { get; init; } = string.Empty;
+
+    [JsonPropertyName("NIT_EMISOR")]
+    public string NitEmisor { get; init; } = string.Empty;
+
+    [JsonPropertyName("NIT_RECEPTOR")]
+    public string NitReceptor { get; init; } = string.Empty;
+
+    [JsonPropertyName("VALOR")]
+    public decimal Valor { get; init; }
+
+    [JsonPropertyName("IVA")]
+    public decimal Iva { get; init; }
+
+    [JsonPropertyName("TOTAL")]
+    public decimal Total { get; init; }
+}
+
 public sealed class EstadisticasProcesamiento
 {
     [JsonPropertyName("cantidadFacturasRecibidas")]

@@ -12,25 +12,48 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="contenedor">
-        <header class="cabecera">
-            <a class="titulo-sitio" asp-page="/Contribuyentes/Listar">Proyecto 3 · Facturación y RTU</a>
-            <nav class="pestanas" aria-label="Operaciones del sistema">
-                <a class="@ClaseActiva("/Contribuyentes/Listar")" asp-page="/Contribuyentes/Listar">Listar</a>
-                <a class="@ClaseActiva("/Contribuyentes/Obtener")" asp-page="/Contribuyentes/Obtener">Obtener</a>
-                <a class="@ClaseActiva("/Contribuyentes/Crear")" asp-page="/Contribuyentes/Crear">Crear</a>
-                <a class="@ClaseActiva("/Contribuyentes/Reemplazar")" asp-page="/Contribuyentes/Reemplazar">Reemplazar</a>
-                <a class="@ClaseActiva("/Contribuyentes/ActualizarNombre")" asp-page="/Contribuyentes/ActualizarNombre">Actualizar nombre</a>
-                <a class="@ClaseActiva("/Contribuyentes/Eliminar")" asp-page="/Contribuyentes/Eliminar">Eliminar</a>
-                <a class="@ClaseActiva("/Inicializar")" asp-page="/Inicializar">Inicializar</a>
-                <a class="@ClaseActiva("/Regex/ImportarTexto")" asp-page="/Regex/ImportarTexto">Importar RTU</a>
-                <a class="@ClaseActiva("/Regex/ExtraerFecha")" asp-page="/Regex/ExtraerFecha">Extraer fecha</a>
-                <a class="@(paginaActual.StartsWith("/Facturacion/", StringComparison.OrdinalIgnoreCase) ? "activa" : string.Empty)" asp-page="/Facturacion/Procesar">Facturación</a>
+    <div class="panel-aplicacion">
+        <aside class="barra-lateral">
+            <a class="titulo-sitio" asp-page="/Contribuyentes/Listar">
+                <span class="marca-icono" aria-hidden="true">P3</span>
+                <span>Proyecto 3<small>RTU · Facturación</small></span>
+            </a>
+            <nav class="navegacion-lateral" aria-label="Navegación principal">
+                <span class="grupo-navegacion">CONTRIBUYENTES</span>
+                <a class="@ClaseActiva("/Contribuyentes/Listar")" asp-page="/Contribuyentes/Listar"><span aria-hidden="true">▦</span> Listar</a>
+                <a class="@ClaseActiva("/Contribuyentes/Obtener")" asp-page="/Contribuyentes/Obtener"><span aria-hidden="true">⌕</span> Obtener</a>
+                <a class="@ClaseActiva("/Contribuyentes/Crear")" asp-page="/Contribuyentes/Crear"><span aria-hidden="true">＋</span> Crear</a>
+                <a class="@ClaseActiva("/Contribuyentes/Reemplazar")" asp-page="/Contribuyentes/Reemplazar"><span aria-hidden="true">↻</span> Reemplazar</a>
+                <a class="@ClaseActiva("/Contribuyentes/ActualizarNombre")" asp-page="/Contribuyentes/ActualizarNombre"><span aria-hidden="true">✎</span> Actualizar nombre</a>
+                <a class="@ClaseActiva("/Contribuyentes/Eliminar")" asp-page="/Contribuyentes/Eliminar"><span aria-hidden="true">−</span> Eliminar</a>
+
+                <span class="grupo-navegacion">HERRAMIENTAS</span>
+                <a class="@ClaseActiva("/Regex/ImportarTexto")" asp-page="/Regex/ImportarTexto"><span aria-hidden="true">⇧</span> Importar RTU</a>
+                <a class="@ClaseActiva("/Regex/ExtraerFecha")" asp-page="/Regex/ExtraerFecha"><span aria-hidden="true">◷</span> Extraer fecha</a>
+
+                <span class="grupo-navegacion">FACTURACIÓN</span>
+                <a class="@ClaseActiva("/Facturacion/Procesar")" asp-page="/Facturacion/Procesar"><span aria-hidden="true">⇧</span> Importar facturas</a>
+                <a class="@ClaseActiva("/Facturacion/Procesadas")" asp-page="/Facturacion/Procesadas"><span aria-hidden="true">▤</span> Facturas procesadas</a>
+                <a class="@ClaseActiva("/Facturacion/Consultas")" asp-page="/Facturacion/Consultas"><span aria-hidden="true">▥</span> Consultas y reportes</a>
+
+                <span class="grupo-navegacion">AYUDA</span>
+                <a class="@ClaseActiva("/Ayuda/Estudiante")" asp-page="/Ayuda/Estudiante"><span aria-hidden="true">♙</span> Estudiante</a>
+                <a class="@ClaseActiva("/Ayuda/Documentacion")" asp-page="/Ayuda/Documentacion"><span aria-hidden="true">▧</span> Documentación</a>
+
+                <span class="grupo-navegacion">SISTEMA</span>
+                <a class="@ClaseActiva("/Historial")" asp-page="/Historial"><span aria-hidden="true">▧</span> Historial y PDF</a>
+                <a class="@ClaseActiva("/Inicializar")" asp-page="/Inicializar"><span aria-hidden="true">⟳</span> Inicializar datos</a>
             </nav>
-        </header>
-        <main class="contenido">
-            <h1>@ViewData["Title"]</h1>
-            @RenderBody()
+            <div class="pie-lateral">Sistema de gestión<br />RTU y facturación</div>
+        </aside>
+        <main class="zona-principal">
+            <header class="encabezado-pagina">
+                <span class="indicador-seccion">PANEL DE GESTIÓN</span>
+                <h1>@ViewData["Title"]</h1>
+            </header>
+            <div class="contenido">
+                @RenderBody()
+            </div>
         </main>
     </div>
     @await RenderSectionAsync("Scripts", required: false)

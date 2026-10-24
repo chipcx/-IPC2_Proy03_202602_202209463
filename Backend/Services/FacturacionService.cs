@@ -207,6 +207,22 @@ public sealed class FacturacionService
         }
     }
 
+    public IReadOnlyList<FacturaRegistradaResponse> ListarFacturasProcesadas()
+    {
+        lock (_sync)
+        {
+            return _facturas
+                .OrderByDescending(registro => registro.Fecha)
+                .Select(registro => new FacturaRegistradaResponse(
+                    registro.Fecha.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture),
+                    CopiarFactura(registro.Factura),
+                    registro.CodigoAprobacion.HasValue,
+                    registro.CodigoAprobacion,
+                    registro.Errores.ToList()))
+                .ToList();
+        }
+    }
+
     public ConsultaFacturasResponse Consultar(string nit, string tipo, DateTime fechaInicio, DateTime fechaFin)
     {
         var nitNormalizado = NormalizarNit(nit);

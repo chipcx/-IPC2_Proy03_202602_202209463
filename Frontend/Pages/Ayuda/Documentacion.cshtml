@@ -1,0 +1,21 @@
+@page
+@{
+    ViewData["Title"] = "Documentación del programa";
+}
+
+<section class="tarjeta-ayuda">
+    <span class="etiqueta-seccion">DOCUMENTACIÓN</span>
+    <h2>Documentación del programa</h2>
+    <p class="texto-ayuda">Puedes consultar la documentación aquí mismo o abrirla en una pestaña nueva.</p>
+    <p>
+        <a class="boton" href="~/documentacion/DOCUMENTACION%20PROYECTO%203.pdf" target="_blank" rel="noopener">
+            Abrir documentación PDF
+        </a>
+    </p>
+    <iframe class="visor-documentacion"
+            src="~/documentacion/DOCUMENTACION%20PROYECTO%203.pdf"
+            title="Documentación del programa en formato PDF">
+        Tu navegador no puede mostrar el PDF.
+        <a href="~/documentacion/DOCUMENTACION%20PROYECTO%203.pdf">Abrir la documentación</a>.
+    </iframe>
+</section>

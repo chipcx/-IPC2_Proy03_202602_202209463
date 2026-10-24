@@ -5,6 +5,7 @@
 }
 
 <partial name="_Alerta" model="Model.Respuesta" />
+<p class="texto-ayuda">Las fechas se proponen a partir de las facturas autorizadas guardadas. Para las gráficas, el resumen de IVA corresponde a un solo día; al abrir esta página se selecciona una fecha con movimientos.</p>
 <form method="post" class="formulario formulario-consulta">
     <div class="campo">
         <label asp-for="Operacion">Consulta</label>
@@ -28,7 +29,19 @@
     </div>
     <div class="campo" data-operacion="iva graficas">
         <label asp-for="Fecha">Fecha para resumen de IVA</label>
-        <input asp-for="Fecha" type="date" />
+        @if (Model.FechasConFacturasAutorizadas.Count > 0)
+        {
+            <select asp-for="Fecha">
+                @foreach (var fechaDisponible in Model.FechasConFacturasAutorizadas)
+                {
+                    <option value="@fechaDisponible.Key">@fechaDisponible.Value</option>
+                }
+            </select>
+        }
+        else
+        {
+            <input asp-for="Fecha" type="date" />
+        }
     </div>
     <div class="campo" data-operacion="facturas rango graficas">
         <label asp-for="FechaInicio">Fecha inicial</label>

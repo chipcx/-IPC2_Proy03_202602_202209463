@@ -5,7 +5,7 @@ using Frontend.Models;
 
 namespace Frontend.Services;
 
-public sealed class ApiClient(HttpClient cliente)
+public sealed class ApiClient(HttpClient cliente, HistorialPeticionesService historial)
 {
     private const string RutaContribuyentes = "api/contribuyentes";
     private static readonly JsonSerializerOptions OpcionesJson = new()
@@ -18,7 +18,9 @@ public sealed class ApiClient(HttpClient cliente)
     {
         var respuesta = await EjecutarAsync(
             () => cliente.GetAsync(RutaContribuyentes, cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Get,
+            RutaContribuyentes);
         if (!respuesta.Exito)
         {
             return (respuesta, []);
@@ -41,7 +43,9 @@ public sealed class ApiClient(HttpClient cliente)
         TieneNit(nit)
             ? EjecutarAsync(
                 () => cliente.GetAsync($"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}", cancellationToken),
-                cancellationToken)
+                cancellationToken,
+                HttpMethod.Get,
+                $"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}")
             : Task.FromResult(ErrorLocal("El NIT es obligatorio."));
 
     public Task<RespuestaApi> CrearAsync(
@@ -49,7 +53,10 @@ public sealed class ApiClient(HttpClient cliente)
         CancellationToken cancellationToken = default) =>
         EjecutarAsync(
             () => cliente.PostAsJsonAsync(RutaContribuyentes, contribuyente, cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Post,
+            RutaContribuyentes,
+            JsonSerializer.Serialize(contribuyente));
 
     public Task<RespuestaApi> ReemplazarAsync(
         string? nit,
@@ -61,7 +68,10 @@ public sealed class ApiClient(HttpClient cliente)
                     $"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}",
                     contribuyente,
                     cancellationToken),
-                cancellationToken)
+                cancellationToken,
+                HttpMethod.Put,
+                $"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}",
+                JsonSerializer.Serialize(contribuyente))
             : Task.FromResult(ErrorLocal("El NIT es obligatorio."));
 
     public Task<RespuestaApi> ActualizarNombreAsync(
@@ -83,13 +93,17 @@ public sealed class ApiClient(HttpClient cliente)
                 () => cliente.DeleteAsync(
                     $"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}",
                     cancellationToken),
-                cancellationToken)
+                cancellationToken,
+                HttpMethod.Delete,
+                $"{RutaContribuyentes}/{Uri.EscapeDataString(Normalizar(nit))}")
             : Task.FromResult(ErrorLocal("El NIT es obligatorio."));
 
     public Task<RespuestaApi> InicializarAsync(CancellationToken cancellationToken = default) =>
         EjecutarAsync(
             () => cliente.DeleteAsync($"{RutaContribuyentes}/inicializar", cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Delete,
+            $"{RutaContribuyentes}/inicializar");
 
     public Task<RespuestaApi> ImportarTextoAsync(
         string texto,
@@ -98,7 +112,10 @@ public sealed class ApiClient(HttpClient cliente)
         var contenido = new StringContent(texto ?? string.Empty, Encoding.UTF8, "text/plain");
         return EjecutarAsync(
             () => cliente.PostAsync($"{RutaContribuyentes}/importar-texto", contenido, cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Post,
+            $"{RutaContribuyentes}/importar-texto",
+            texto ?? string.Empty);
     }
 
     public Task<RespuestaApi> ExtraerFechaAsync(
@@ -108,7 +125,9 @@ public sealed class ApiClient(HttpClient cliente)
             () => cliente.GetAsync(
                 $"{RutaContribuyentes}/fecha?texto={Uri.EscapeDataString(texto ?? string.Empty)}",
                 cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Get,
+            $"{RutaContribuyentes}/fecha?texto={Uri.EscapeDataString(texto ?? string.Empty)}");
 
     public Task<RespuestaApi> ProcesarFacturasAsync(
         string json,
@@ -117,7 +136,36 @@ public sealed class ApiClient(HttpClient cliente)
         var contenido = new StringContent(json ?? string.Empty, Encoding.UTF8, "application/json");
         return EjecutarAsync(
             () => cliente.PostAsync("api/Procesar", contenido, cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Post,
+            "api/Procesar",
+            json ?? string.Empty);
+    }
+
+    public async Task<(RespuestaApi Respuesta, List<FacturaRegistradaResponse> Facturas)> ListarFacturasProcesadasAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var respuesta = await EjecutarAsync(
+            () => cliente.GetAsync("api/facturas", cancellationToken),
+            cancellationToken,
+            HttpMethod.Get,
+            "api/facturas");
+        if (!respuesta.Exito)
+        {
+            return (respuesta, []);
+        }
+
+        try
+        {
+            var facturas = JsonSerializer.Deserialize<List<FacturaRegistradaResponse>>(respuesta.Cuerpo, OpcionesJson);
+            return facturas is null
+                ? (ErrorRespuesta(respuesta.Codigo, "La API devolvió una lista de facturas no válida.", respuesta.Cuerpo), [])
+                : (respuesta, facturas);
+        }
+        catch (JsonException)
+        {
+            return (ErrorRespuesta(respuesta.Codigo, "La API devolvió una lista de facturas no válida.", respuesta.Cuerpo), []);
+        }
     }
 
     public Task<RespuestaApi> ConsultarFacturasAsync(
@@ -188,7 +236,9 @@ public sealed class ApiClient(HttpClient cliente)
                 $"{Uri.EscapeDataString(parametro.Key)}={Uri.EscapeDataString(parametro.Value)}"));
         return EjecutarAsync(
             () => cliente.GetAsync($"{ruta}?{query}", cancellationToken),
-            cancellationToken);
+            cancellationToken,
+            HttpMethod.Get,
+            $"{ruta}?{query}");
     }
 
     private async Task<RespuestaApi> EnviarPatchAsync(
@@ -203,36 +253,57 @@ public sealed class ApiClient(HttpClient cliente)
             Content = JsonContent.Create(new Contribuyente { Nombre = nombre ?? string.Empty })
         };
 
-        try
-        {
-            using var respuesta = await cliente.SendAsync(solicitud, cancellationToken);
-            return await CrearRespuestaAsync(respuesta, cancellationToken);
-        }
-        catch (HttpRequestException)
-        {
-            return ErrorConexion();
-        }
-        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
-        {
-            return ErrorConexion();
-        }
+        return await EjecutarAsync(
+            () => cliente.SendAsync(solicitud, cancellationToken),
+            cancellationToken,
+            HttpMethod.Patch,
+            solicitud.RequestUri?.ToString() ?? $"{RutaContribuyentes}/{Normalizar(nit)}",
+            JsonSerializer.Serialize(new Contribuyente { Nombre = nombre ?? string.Empty }));
     }
 
     private async Task<RespuestaApi> EjecutarAsync(
         Func<Task<HttpResponseMessage>> solicitud,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        HttpMethod metodo,
+        string ruta,
+        string cuerpoSolicitud = "")
     {
         try
         {
             using var respuesta = await solicitud();
-            return await CrearRespuestaAsync(respuesta, cancellationToken);
+            var resultado = await CrearRespuestaAsync(respuesta, cancellationToken);
+            historial.Registrar(new PeticionHistorial(
+                DateTimeOffset.UtcNow,
+                metodo.Method,
+                ruta,
+                resultado.Codigo,
+                resultado.Exito,
+                cuerpoSolicitud,
+                resultado.Cuerpo));
+            return resultado;
         }
         catch (HttpRequestException)
         {
+            historial.Registrar(new PeticionHistorial(
+                DateTimeOffset.UtcNow,
+                metodo.Method,
+                ruta,
+                null,
+                false,
+                cuerpoSolicitud,
+                "No se pudo conectar con la API."));
             return ErrorConexion();
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
+            historial.Registrar(new PeticionHistorial(
+                DateTimeOffset.UtcNow,
+                metodo.Method,
+                ruta,
+                null,
+                false,
+                cuerpoSolicitud,
+                "La solicitud agotó el tiempo de espera."));
             return ErrorConexion();
         }
     }

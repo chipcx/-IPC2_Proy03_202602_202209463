@@ -1,0 +1,54 @@
+@page
+@model Frontend.Pages.HistorialModel
+@{
+    ViewData["Title"] = "Historial de peticiones";
+}
+
+<div class="acciones acciones-historial no-imprimir">
+    <p class="texto-ayuda">Se conserva el registro de las operaciones que el programa envía a la API. Usa el botón para imprimir o guardar todas en un solo PDF.</p>
+    <button class="boton" type="button" onclick="window.print()">Generar reporte PDF</button>
+</div>
+
+<section class="resumen-importacion resumen-facturas resumen-historial" aria-label="Resumen del historial">
+    <div><dt>Total de peticiones</dt><dd>@Model.Peticiones.Count</dd></div>
+    <div><dt>Correctas</dt><dd>@Model.Exitosas</dd></div>
+    <div><dt>Fallidas</dt><dd>@Model.Fallidas</dd></div>
+</section>
+
+@if (Model.Peticiones.Count == 0)
+{
+    <p class="aviso">Todavía no hay peticiones registradas. Las operaciones que realices desde el programa aparecerán aquí.</p>
+}
+else
+{
+    <div class="lista-historial">
+        @foreach (var peticion in Model.Peticiones)
+        {
+            <article class="peticion-historial">
+                <header class="cabecera-peticion">
+                    <div>
+                        <span class="metodo-peticion">@peticion.Metodo</span>
+                        <code>@peticion.Ruta</code>
+                    </div>
+                    <span class="estado-peticion @(peticion.Exito ? "estado-exito" : "estado-error")">
+                        @(peticion.CodigoHttp?.ToString() ?? "Sin respuesta") · @(peticion.Exito ? "Correcta" : "Fallida")
+                    </span>
+                </header>
+                <p class="fecha-peticion">@peticion.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</p>
+                <details>
+                    <summary>Ver solicitud y respuesta</summary>
+                    <div class="detalle-peticion">
+                        <div>
+                            <h3>Solicitud</h3>
+                            <pre>@Model.FormatearCuerpo(peticion.CuerpoSolicitud)</pre>
+                        </div>
+                        <div>
+                            <h3>Respuesta</h3>
+                            <pre>@Model.FormatearCuerpo(peticion.CuerpoRespuesta)</pre>
+                        </div>
+                    </div>
+                </details>
+            </article>
+        }
+    </div>
+}

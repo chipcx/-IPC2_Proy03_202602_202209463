@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddSingleton<HistorialPeticionesService>();
 var apiUrl = builder.Configuration["ApiUrl"]
     ?? throw new InvalidOperationException("La configuración ApiUrl es obligatoria.");
 builder.Services.AddHttpClient<ApiClient>(client =>

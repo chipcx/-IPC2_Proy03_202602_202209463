@@ -1,0 +1,73 @@
+@page
+@model Frontend.Pages.Facturacion.ProcesadasModel
+@{
+    ViewData["Title"] = "Facturas procesadas";
+}
+
+<partial name="_Alerta" model="Model.Respuesta" />
+<dl class="resumen-importacion resumen-facturas">
+    <div><dt>Total procesadas</dt><dd>@Model.Facturas.Count</dd></div>
+    <div><dt>Aprobadas</dt><dd>@Model.Aprobadas</dd></div>
+    <div><dt>Rechazadas</dt><dd>@Model.Rechazadas</dd></div>
+</dl>
+<section aria-labelledby="resumen-rechazos">
+    <h2 id="resumen-rechazos">Rechazos por motivo</h2>
+    <p class="texto-ayuda">Conteo de motivos encontrados en las facturas procesadas guardadas. Una factura puede aparecer en más de un motivo.</p>
+    <dl class="resumen-importacion resumen-facturas">
+        @foreach (var motivo in Model.ConteoRechazos)
+        {
+            <div><dt>@motivo.Key</dt><dd>@motivo.Value</dd></div>
+        }
+    </dl>
+</section>
+
+@if (Model.Facturas.Count == 0)
+{
+    <p class="aviso">Aún no hay facturas procesadas. Importa un archivo JSON desde <a asp-page="/Facturacion/Procesar">Procesar facturas</a>.</p>
+}
+else
+{
+    <p class="texto-ayuda">Este listado se carga desde el almacenamiento persistente del backend. Puedes cambiar de pestaña o volver más tarde; los registros se mantienen hasta inicializar el sistema.</p>
+    <div class="tabla-desplazable">
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Referencia</th>
+                    <th>Emisor</th>
+                    <th>Receptor</th>
+                    <th>Valor</th>
+                    <th>IVA</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Código / errores</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var registro in Model.Facturas)
+            {
+                <tr>
+                    <td>@registro.Fecha</td>
+                    <td>@registro.Factura.Referencia</td>
+                    <td>@registro.Factura.NitEmisor</td>
+                    <td>@registro.Factura.NitReceptor</td>
+                    <td>@registro.Factura.Valor.ToString("C2")</td>
+                    <td>@registro.Factura.Iva.ToString("C2")</td>
+                    <td>@registro.Factura.Total.ToString("C2")</td>
+                    <td><span class="estado-peticion @(registro.Aprobada ? "estado-exito" : "estado-error")">@(registro.Aprobada ? "Aprobada" : "Rechazada")</span></td>
+                    <td>
+                        @if (registro.Aprobada)
+                        {
+                            @registro.CodigoAprobacion
+                        }
+                        else
+                        {
+                            @string.Join(", ", registro.Errores)
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
